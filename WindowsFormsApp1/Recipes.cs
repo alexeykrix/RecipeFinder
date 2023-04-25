@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,44 +15,80 @@ namespace WindowsFormsApp1
 {
     public partial class Recipes : Form
     {
+        public RecipeManager appManager;
         public Recipes()
         {
             InitializeComponent();
+            appManager = new RecipeManager(flowLayout);
         }
 
-        private async void btnSearch_Click(object sender, EventArgs e)
+        private void btnSearch_Click(object sender, EventArgs e)
         {
-            string userInput = inputSearch.Text.Replace(" ", ",+");
-            string apiKey = "&apiKey=22d37f4ddb3649d1aa1ee372e930b27c";
+            string userInput = inputSearch.Text;
 
-            string apiUrl = "https://api.spoonacular.com/recipes/findByIngredients?ingredients=" + userInput + apiKey;
-
-            using (HttpClient client = new HttpClient())
-            {
-                HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    List<Recipe> recipeList = await response.Content.ReadAsAsync<List<Recipe>>();
-
-                    DisplayRecipes(recipeList);
-                }
-                else
-                {
-                    MessageBox.Show("Error: Could not retrieve search results");
-                }
-            }
+            appManager.fetchRecipes(userInput);
         }
 
-        private void DisplayRecipes(List<Recipe> recipeList)
+        public class RecipeManager
         {
-            flowLayout.Controls.Clear();
+            private List<Recipe> recipeList;
+            private List<Recipe> savedRecipeList;
+            private ApiManager api;
+            private AppConfig config;
+            private FlowLayoutPanel flowLayout;
 
-            foreach (Recipe recipe in recipeList)
+            public RecipeManager(FlowLayoutPanel flowLayout)
             {
-                RecipeCard card = new RecipeCard(recipe);
-                flowLayout.Controls.Add(card);
+                config = new AppConfig();
+                api = new ApiManager(config.ApiKey, config.ApiURL);
+                this.flowLayout = flowLayout;
             }
+
+            public async void fetchRecipes(string inputString)
+            {
+                string query = inputString.Replace(" ", ",+");
+                recipeList = await api.GetRecipesByIngredientsAsync(query);
+                RenderRecipes(recipeList);
+            }
+            private void RenderRecipes(List<Recipe> recipeList)
+            {
+                flowLayout.Controls.Clear();
+
+                foreach (Recipe recipe in recipeList)
+                {
+                    RecipeCard card = new RecipeCard(recipe);
+                    flowLayout.Controls.Add(card);
+                }
+            }
+
+        }
+
+        public class ApiManager
+        {
+            private string ApiKey { get; set; }
+            private string ApiURL { get; set; }
+            private HttpClient httpClient;
+
+            public ApiManager(string apiKey, string apiURL)
+            {
+                ApiKey = apiKey;
+                ApiURL = apiURL;
+                httpClient = new HttpClient();
+            }
+
+            public async Task<List<Recipe>> GetRecipesByIngredientsAsync(string query)
+            {
+                string requestUrl = $"{ApiURL}?apiKey={ApiKey}&ingredients={query}";
+
+                HttpResponseMessage response = await httpClient.GetAsync(requestUrl);
+                response.EnsureSuccessStatusCode();
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+                List<Recipe> recipes = JsonConvert.DeserializeObject<List<Recipe>>(responseBody);
+
+                return recipes;
+            }
+
         }
 
         public class Ingredient
@@ -62,9 +99,10 @@ namespace WindowsFormsApp1
 
         public class Recipe
         {
+            public int id { get; set; }
             public string title { get; set; }
             public string image { get; set; }
-            public string Description { get; set; }
+            public string description { get; set; }
             public List<Ingredient> missedIngredients { get; set; }
             public List<Ingredient> usedIngredients { get; set; }
         }
@@ -120,6 +158,27 @@ namespace WindowsFormsApp1
                 this.BorderStyle = BorderStyle.FixedSingle;
             }
         }
+
+        public class AppConfig
+        {
+            private string apiURL = "https://api.spoonacular.com/recipes/findByIngredients";
+            private string apiKey = "22d37f4ddb3649d1aa1ee372e930b27c";
+            private string savedRecipesPath = "./storredRecipes.json";
+
+            public string ApiKey
+            {
+                get { return apiKey; }
+            }
+            public string SavedRecipesPath
+            {
+                get { return savedRecipesPath; }
+            }
+            public string ApiURL
+            {
+                get { return apiURL; }
+            }
+        }
+
 
     }
 }
