@@ -31,6 +31,7 @@
             this.inputSearch = new System.Windows.Forms.TextBox();
             this.btnSearch = new System.Windows.Forms.Button();
             this.flowLayout = new System.Windows.Forms.FlowLayoutPanel();
+            this.buttonToSaved = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // inputSearch
@@ -43,7 +44,6 @@
             // 
             // btnSearch
             // 
-            this.btnSearch.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.btnSearch.BackColor = System.Drawing.Color.Transparent;
             this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.btnSearch.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
@@ -66,12 +66,26 @@
             this.flowLayout.Size = new System.Drawing.Size(1224, 688);
             this.flowLayout.TabIndex = 2;
             // 
+            // buttonToSaved
+            // 
+            this.buttonToSaved.BackColor = System.Drawing.Color.Transparent;
+            this.buttonToSaved.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.buttonToSaved.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
+            this.buttonToSaved.Location = new System.Drawing.Point(908, 9);
+            this.buttonToSaved.Name = "buttonToSaved";
+            this.buttonToSaved.Size = new System.Drawing.Size(145, 32);
+            this.buttonToSaved.TabIndex = 1;
+            this.buttonToSaved.Text = "Saved recipes";
+            this.buttonToSaved.UseVisualStyleBackColor = false;
+            this.buttonToSaved.Click += new System.EventHandler(this.buttonToSaved_Click);
+            // 
             // Recipes
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1224, 688);
+            this.Controls.Add(this.buttonToSaved);
             this.Controls.Add(this.btnSearch);
             this.Controls.Add(this.inputSearch);
             this.Controls.Add(this.flowLayout);
@@ -87,5 +101,6 @@
         private System.Windows.Forms.TextBox inputSearch;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.FlowLayoutPanel flowLayout;
+        private System.Windows.Forms.Button buttonToSaved;
     }
 }
